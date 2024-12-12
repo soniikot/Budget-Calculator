@@ -12,9 +12,9 @@ const Header = () => {
           <h3 className="text-2xl font-bold">Sofia Kotova</h3>
           <div className="flex gap-10">
             <Link
-              href="/"
+              href="/pages"
               className={
-                pathname === "/"
+                pathname === "/pages"
                   ? "text-red-600 font-medium"
                   : "hover:text-red-600"
               }
@@ -22,9 +22,9 @@ const Header = () => {
               Home
             </Link>
             <Link
-              href="/about"
+              href="/pages/about"
               className={
-                pathname === "/about"
+                pathname === "/pages/about"
                   ? "text-red-600 font-medium"
                   : "hover:text-red-600"
               }
@@ -32,9 +32,9 @@ const Header = () => {
               About
             </Link>
             <Link
-              href="/projects"
+              href="/pages/projects"
               className={
-                pathname === "/projects"
+                pathname === "/pages/projects"
                   ? "text-red-600 font-medium"
                   : "hover:text-red-600"
               }

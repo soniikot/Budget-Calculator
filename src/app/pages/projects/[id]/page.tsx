@@ -10,8 +10,8 @@ const projects = [
       "A React-based food delivery application using Redux and Strapi.",
     technologies: ["React", "Redux", "Strapi"],
     image: "/eatly.png",
-    githubUrl: "https://github.com/yourusername/food-delivery",
-    liveUrl: "https://food-delivery-demo.com",
+    githubUrl: "https://github.com/soniikot/Eatly-Layout",
+    liveUrl: "https://soniikot.github.io/Eatly-Layout/",
   },
   {
     id: "2",
@@ -19,8 +19,8 @@ const projects = [
     description: "An e-commerce platform for clothing with modern UI/UX.",
     technologies: ["React", "Redux", "Jest"],
     image: "/clothing-store.png",
-    githubUrl: "https://github.com/yourusername/clothing-store",
-    liveUrl: "https://clothing-store-demo.com",
+    githubUrl: "https://github.com/soniikot/shopping-cart",
+    liveUrl: "http://62.72.5.244:5173/",
   },
 ];
 
