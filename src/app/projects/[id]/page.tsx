@@ -24,15 +24,13 @@ const projects = [
   },
 ];
 
-interface Props {
-  params: {
-    id: string;
-  };
-  searchParams: { [key: string]: string | string[] | undefined };
-}
+type Props = {
+  params: Promise<{ id: string }>;
+};
 
-const ProjectPage = async ({ params }: Props) => {
-  const project = projects.find((p) => p.id === params.id);
+export default async function ProjectPage({ params }: Props) {
+  const { id } = await params;
+  const project = projects.find((p) => p.id === id);
 
   if (!project) {
     notFound();
@@ -109,6 +107,4 @@ const ProjectPage = async ({ params }: Props) => {
       </div>
     </main>
   );
-};
-
-export default ProjectPage;
+}
