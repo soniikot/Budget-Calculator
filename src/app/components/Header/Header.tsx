@@ -1,9 +1,8 @@
 "use client";
 import Link from "next/link";
-import { FC } from "react";
 import { usePathname } from "next/navigation";
 
-const Header: FC = () => {
+const Header = () => {
   const pathname = usePathname();
 
   return (
