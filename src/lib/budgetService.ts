@@ -6,24 +6,19 @@ import {
   where,
   getDocs,
   doc,
-  updateDoc,
   deleteDoc,
 } from "firebase/firestore";
 import { Expense, MonthlyBudget } from "@/types/budget";
 
 async function initializeCollections() {
   try {
-    // Check if collections exist
     const monthsRef = collection(db, "months");
-    const expensesRef = collection(db, "expenses");
 
-    // Create test documents to initialize collections
     await addDoc(monthsRef, {
       id: "test",
       createdAt: new Date().toISOString(),
     });
 
-    // Clean up test documents
     const querySnapshot = await getDocs(
       query(monthsRef, where("id", "==", "test"))
     );
@@ -35,14 +30,11 @@ async function initializeCollections() {
   }
 }
 
-// Call this when your app starts
 initializeCollections();
 
 export const budgetService = {
-  // Add a new expense
   async addExpense(monthId: string, expense: Omit<Expense, "id">) {
     try {
-      const monthRef = doc(db, "months", monthId);
       const expenseRef = await addDoc(collection(db, "expenses"), {
         ...expense,
         monthId,
@@ -55,7 +47,6 @@ export const budgetService = {
     }
   },
 
-  // Get expenses for a specific month
   async getMonthExpenses(monthId: string): Promise<Expense[]> {
     try {
       const q = query(
@@ -76,7 +67,6 @@ export const budgetService = {
     }
   },
 
-  // Delete an expense
   async deleteExpense(expenseId: string) {
     try {
       await deleteDoc(doc(db, "expenses", expenseId));
@@ -86,7 +76,6 @@ export const budgetService = {
     }
   },
 
-  // Get monthly summary
   async getMonthSummary(monthId: string): Promise<MonthlyBudget | null> {
     try {
       const expenses = await this.getMonthExpenses(monthId);
@@ -149,7 +138,6 @@ export const budgetService = {
       );
       await Promise.all(deletePromises);
 
-      // Delete the month document
       const monthQuery = query(
         collection(db, "months"),
         where("month", "==", monthId)
