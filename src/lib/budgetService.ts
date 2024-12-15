@@ -11,6 +11,33 @@ import {
 } from "firebase/firestore";
 import { Expense, MonthlyBudget } from "@/types/budget";
 
+async function initializeCollections() {
+  try {
+    // Check if collections exist
+    const monthsRef = collection(db, "months");
+    const expensesRef = collection(db, "expenses");
+
+    // Create test documents to initialize collections
+    await addDoc(monthsRef, {
+      id: "test",
+      createdAt: new Date().toISOString(),
+    });
+
+    // Clean up test documents
+    const querySnapshot = await getDocs(
+      query(monthsRef, where("id", "==", "test"))
+    );
+    querySnapshot.forEach((doc) => {
+      deleteDoc(doc.ref);
+    });
+  } catch (error) {
+    console.error("Error initializing collections:", error);
+  }
+}
+
+// Call this when your app starts
+initializeCollections();
+
 export const budgetService = {
   // Add a new expense
   async addExpense(monthId: string, expense: Omit<Expense, "id">) {

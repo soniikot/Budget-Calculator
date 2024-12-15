@@ -19,7 +19,7 @@ export default function BudgetPage() {
   const handleMonthChange = async (e: React.FormEvent) => {
     e.preventDefault();
     const form = e.target as HTMLFormElement;
-    const monthInput = form.month.value; // Format: YYYY-MM from month input
+    const monthInput = form.month.value;
 
     try {
       const exists = await budgetService.getMonth(monthInput);
