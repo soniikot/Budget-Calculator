@@ -1,5 +1,9 @@
-import Hero from "./components/Hero/Hero";
+import BudgetHomePage from "./budget/page";
 
-export default function Home() {
-  return <Hero />;
+export default function Homepage() {
+  return (
+    <main>
+      <BudgetHomePage />
+    </main>
+  );
 }
