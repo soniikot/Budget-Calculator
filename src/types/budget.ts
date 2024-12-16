@@ -21,3 +21,7 @@ export interface MonthBudgetPageProps {
     month: string;
   }>;
 }
+
+export interface Props {
+  month: string;
+}
