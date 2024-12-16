@@ -151,4 +151,19 @@ export const budgetService = {
       throw error;
     }
   },
+
+  async getAllMonths(): Promise<string[]> {
+    try {
+      const monthsRef = collection(db, "months");
+      const querySnapshot = await getDocs(monthsRef);
+      const months = querySnapshot.docs.map(
+        (doc) => doc.data().month as string
+      );
+      console.log("Raw months from DB:", months); // Debug log
+      return months.sort((a, b) => b.localeCompare(a));
+    } catch (error) {
+      console.error("Error getting all months:", error);
+      throw error;
+    }
+  },
 };

@@ -13,11 +13,11 @@ const categories = [
   "Other",
 ];
 
-export default function MonthBudgetPage({
-  params,
-}: {
-  params: { month: string };
-}) {
+interface Props {
+  month: string;
+}
+
+export default function MonthBudgetClient({ month }: Props) {
   const router = useRouter();
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [loading, setLoading] = useState(true);
@@ -30,36 +30,35 @@ export default function MonthBudgetPage({
 
   const loadExpenses = useCallback(async () => {
     try {
-      const monthExists = await budgetService.getMonth(params.month);
+      const monthExists = await budgetService.getMonth(month);
       if (!monthExists) {
-        await budgetService.createMonth(params.month);
+        router.push("/");
+        return;
       }
-      const monthExpenses = await budgetService.getMonthExpenses(params.month);
+      const monthExpenses = await budgetService.getMonthExpenses(month);
       setExpenses(monthExpenses);
     } catch (error) {
       console.error("Error loading expenses:", error);
-      router.push("/budget");
     } finally {
       setLoading(false);
     }
-  }, [params.month, router]);
+  }, [month, router]);
 
   useEffect(() => {
     loadExpenses();
   }, [loadExpenses]);
 
-  const addExpense = async () => {
+  const handleAddExpense = async () => {
+    if (!newExpense.description || !newExpense.amount) return;
+
     try {
-      const expense = {
+      await budgetService.addExpense(month, {
         description: newExpense.description,
         amount: parseFloat(newExpense.amount),
         category: newExpense.category,
         date: newExpense.date,
-      };
-
-      await budgetService.addExpense(params.month, expense);
+      });
       await loadExpenses();
-
       setNewExpense({
         description: "",
         amount: "",
@@ -71,31 +70,33 @@ export default function MonthBudgetPage({
     }
   };
 
-  const totalAmount = expenses.reduce(
-    (sum, expense) => sum + expense.amount,
-    0
-  );
-  const categoryTotals = expenses.reduce((acc, expense) => {
-    acc[expense.category] = (acc[expense.category] || 0) + expense.amount;
+  const totalAmount = expenses.reduce((sum, exp) => sum + exp.amount, 0);
+  const categoryTotals = expenses.reduce((acc, exp) => {
+    acc[exp.category] = (acc[exp.category] || 0) + exp.amount;
     return acc;
   }, {} as { [key: string]: number });
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
+  if (loading) return <div>Loading...</div>;
 
   return (
-    <main className="mx-auto max-w-4xl p-6">
+    <main className="p-6">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Budget for {params.month}</h1>
+        <h1 className="text-2xl font-bold">
+          Budget for{" "}
+          {new Date(month + "-01").toLocaleString("default", {
+            month: "long",
+            year: "numeric",
+          })}
+        </h1>
         <Link
-          href="/budget"
-          className="px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200"
+          href="/"
+          className="px-4 py-2 bg-gray-100 rounded hover:bg-gray-200"
         >
-          All Months
+          Back to All Months
         </Link>
       </div>
 
+      {/* Add Expense Form */}
       <div className="bg-white p-6 rounded-lg shadow mb-6">
         <h2 className="text-xl font-semibold mb-4">Add New Expense</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -124,9 +125,9 @@ export default function MonthBudgetPage({
             }
             className="border p-2 rounded"
           >
-            {categories.map((category) => (
-              <option key={category} value={category}>
-                {category}
+            {categories.map((cat) => (
+              <option key={cat} value={cat}>
+                {cat}
               </option>
             ))}
           </select>
@@ -140,13 +141,14 @@ export default function MonthBudgetPage({
           />
         </div>
         <button
-          onClick={addExpense}
+          onClick={handleAddExpense}
           className="mt-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
         >
           Add Expense
         </button>
       </div>
 
+      {/* Summary */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         <div className="bg-white p-6 rounded-lg shadow">
           <h2 className="text-xl font-semibold mb-4">Total Expenses</h2>
@@ -165,6 +167,7 @@ export default function MonthBudgetPage({
         </div>
       </div>
 
+      {/* Expenses List */}
       <div className="bg-white p-6 rounded-lg shadow">
         <h2 className="text-xl font-semibold mb-4">Expenses</h2>
         <div className="overflow-x-auto">

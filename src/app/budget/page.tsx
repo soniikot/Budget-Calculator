@@ -1,90 +1,75 @@
 "use client";
-import { useState } from "react";
+
+import { useEffect, useState } from "react";
+import MonthSelector from "../../components/MonthSelector/MonthSelector";
+import MonthDisplay from "../../components/MonthDisplay/MonthDisplay";
+
 import { budgetService } from "@/lib/budgetService";
-import MonthBudget from "../../components/MonthBudget";
+import MonthBudgetPage from "./[month]/MonthBudgetPage";
 
 export default function BudgetPage() {
   const [monthId, setMonthId] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
 
-  const handleCreateNew = () => {
+  useEffect(() => {
     const today = new Date();
     const defaultMonth = `${today.getFullYear()}-${String(
       today.getMonth() + 1
     ).padStart(2, "0")}`;
     setMonthId(defaultMonth);
+    setIsInitialized(true);
+  }, []);
+
+  const handleCreateNew = () => {
     setShowForm(true);
   };
 
-  const handleMonthChange = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const form = e.target as HTMLFormElement;
-    const monthInput = form.month.value;
-
+  const handleMonthSelect = async (month: string) => {
     try {
-      const exists = await budgetService.getMonth(monthInput);
+      const exists = await budgetService.getMonth(month);
       if (!exists) {
-        await budgetService.createMonth(monthInput);
+        await budgetService.createMonth(month);
       }
-      setMonthId(monthInput);
+      setMonthId(month);
       setShowForm(false);
     } catch (error) {
       console.error("Error creating/selecting month:", error);
     }
   };
 
-  if (!monthId && !showForm) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen p-6">
-        <button
-          onClick={handleCreateNew}
-          className="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 text-lg font-semibold"
-        >
-          Create New Month Budget
-        </button>
-      </div>
-    );
-  }
+  if (!isInitialized) return <div>Loading...</div>;
 
   return (
     <div className="p-6">
-      {showForm ? (
-        <form onSubmit={handleMonthChange} className="mb-6">
-          <div className="flex gap-4 max-w-md mx-auto">
-            <input
-              type="month"
-              name="month"
-              defaultValue={monthId || undefined}
-              className="flex-1 p-2 border rounded"
-              required
-            />
-            <button
-              type="submit"
-              className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-            >
-              Create Month
-            </button>
-          </div>
-        </form>
-      ) : (
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-semibold">
-            Budget for{" "}
-            {new Date(monthId + "-01").toLocaleString("default", {
-              month: "long",
-              year: "numeric",
-            })}
-          </h2>
+      {!showForm && !monthId && (
+        <div className="flex flex-col items-center justify-center min-h-screen p-6">
           <button
-            onClick={() => setShowForm(true)}
-            className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+            onClick={handleCreateNew}
+            className="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 text-lg font-semibold"
           >
-            Change Month
+            Create New Month Budget
           </button>
         </div>
       )}
 
-      {monthId && <MonthBudget month={monthId} />}
+      {showForm && (
+        <MonthSelector
+          defaultMonth={monthId}
+          onMonthSelect={handleMonthSelect}
+          onCancel={() => setShowForm(false)}
+        />
+      )}
+
+      {monthId && !showForm && (
+        <>
+          <MonthDisplay
+            month={monthId}
+            onChangeMonth={() => setShowForm(true)}
+          />
+          <MonthBudgetPage params={{ month: monthId }} />
+        </>
+      )}
     </div>
   );
 }
