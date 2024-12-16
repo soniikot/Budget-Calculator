@@ -96,7 +96,6 @@ export default function MonthBudgetClient({ month }: Props) {
         </Link>
       </div>
 
-      {/* Add Expense Form */}
       <div className="bg-white p-6 rounded-lg shadow mb-6">
         <h2 className="text-xl font-semibold mb-4">Add New Expense</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

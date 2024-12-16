@@ -1,11 +1,9 @@
 import MonthBudgetClient from "./MonthBudgetClient";
+import { MonthBudgetPageProps } from "@/types/budget";
 
-interface Props {
-  params: {
-    month: string;
-  };
-}
-
-export default function BudgetMonthPage({ params }: Props) {
-  return <MonthBudgetClient month={params.month} />;
+export default async function BudgetMonthPage({
+  params,
+}: MonthBudgetPageProps) {
+  const resolvedParams = await params;
+  return <MonthBudgetClient month={resolvedParams.month} />;
 }

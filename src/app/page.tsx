@@ -8,10 +8,10 @@ export default function HomePage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let mounted = true;
     const fetchMonths = async () => {
       try {
         const allMonths = await budgetService.getAllMonths();
-        console.log("Fetched months:", allMonths); // Debug log
         setMonths(allMonths);
       } catch (error) {
         console.error("Error loading months:", error);
@@ -21,6 +21,10 @@ export default function HomePage() {
     };
 
     fetchMonths();
+
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   if (loading) {
