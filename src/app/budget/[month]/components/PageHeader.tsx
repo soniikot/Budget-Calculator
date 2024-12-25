@@ -5,11 +5,15 @@ interface PageHeaderProps {
 }
 
 export function PageHeader({ month }: PageHeaderProps) {
+  // Parse the month string properly
+  const [year, monthNum] = month.split("-");
+  const date = new Date(parseInt(year), parseInt(monthNum) - 1);
+
   return (
     <div className="flex justify-between items-center mb-6">
       <h1 className="text-2xl font-bold">
         Budget for{" "}
-        {new Date(month + "-01").toLocaleString("default", {
+        {date.toLocaleDateString("default", {
           month: "long",
           year: "numeric",
         })}

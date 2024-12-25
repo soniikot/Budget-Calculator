@@ -6,43 +6,41 @@ import { budgetService } from "@/lib/budgetService";
 export default function NewBudgetPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const form = e.target as HTMLFormElement;
-    const month = form.month.value;
-
+  const handleCreateMonth = async (month: string) => {
     setLoading(true);
+    setError(null);
+
     try {
+      console.log("Creating month:", month);
       await budgetService.createMonth(month);
+      console.log("Month created successfully");
       router.push(`/budget/${month}`);
     } catch (error) {
       console.error("Error creating month:", error);
+      setError("Failed to create month. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
+  const currentMonth = new Date().toISOString().slice(0, 7); // Format: YYYY-MM
+
   return (
-    <main className="p-6">
-      <h1 className="text-2xl font-bold mb-6">Create New Month Budget</h1>
-      <form onSubmit={handleSubmit} className="max-w-md">
-        <div className="space-y-4">
-          <input
-            type="month"
-            name="month"
-            required
-            className="w-full p-2 border rounded"
-          />
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 disabled:bg-gray-400"
-          >
-            {loading ? "Creating..." : "Create Month"}
-          </button>
-        </div>
-      </form>
-    </main>
+    <div className="p-6">
+      <h1 className="text-2xl font-bold mb-4">Create New Budget Month</h1>
+      {error && (
+        <div className="mb-4 p-3 bg-red-100 text-red-700 rounded">{error}</div>
+      )}
+      <button
+        onClick={() => handleCreateMonth(currentMonth)}
+        disabled={loading}
+        className={`bg-blue-500 text-white px-4 py-2 rounded
+          ${loading ? "opacity-50 cursor-not-allowed" : "hover:bg-blue-600"}`}
+      >
+        {loading ? "Creating..." : "Create Budget for Current Month"}
+      </button>
+    </div>
   );
 }

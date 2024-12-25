@@ -1,169 +1,109 @@
 import { db } from "./firebase";
 import {
   collection,
-  addDoc,
+  getDocs,
   query,
   where,
-  getDocs,
-  doc,
+  addDoc,
   deleteDoc,
+  doc,
+  orderBy,
 } from "firebase/firestore";
 import { Expense, MonthlyBudget } from "@/types/budget";
 
-async function initializeCollections() {
-  try {
-    const monthsRef = collection(db, "months");
-
-    await addDoc(monthsRef, {
-      id: "test",
-      createdAt: new Date().toISOString(),
-    });
-
-    const querySnapshot = await getDocs(
-      query(monthsRef, where("id", "==", "test"))
-    );
-    querySnapshot.forEach((doc) => {
-      deleteDoc(doc.ref);
-    });
-  } catch (error) {
-    console.error("Error initializing collections:", error);
-  }
-}
-
-initializeCollections();
-
-export const budgetService = {
-  async addExpense(monthId: string, expense: Omit<Expense, "id">) {
+class BudgetService {
+  async createMonth(month: string): Promise<string> {
     try {
-      const expenseRef = await addDoc(collection(db, "expenses"), {
-        ...expense,
-        monthId,
+      // First check if month already exists
+      const exists = await this.getMonth(month);
+      if (exists) {
+        return month; // Return existing month
+      }
+
+      // Create new month if it doesn't exist
+      const monthsRef = collection(db, "months");
+      const docRef = await addDoc(monthsRef, {
+        month,
         createdAt: new Date().toISOString(),
       });
-      return expenseRef.id;
-    } catch (error) {
-      console.error("Error adding expense:", error);
-      throw error;
-    }
-  },
 
-  async getMonthExpenses(monthId: string): Promise<Expense[]> {
-    try {
-      const q = query(
-        collection(db, "expenses"),
-        where("monthId", "==", monthId)
-      );
-      const querySnapshot = await getDocs(q);
-      return querySnapshot.docs.map(
-        (doc) =>
-          ({
-            id: doc.id,
-            ...doc.data(),
-          } as Expense)
-      );
-    } catch (error) {
-      console.error("Error getting expenses:", error);
-      throw error;
-    }
-  },
-
-  async deleteExpense(expenseId: string) {
-    try {
-      await deleteDoc(doc(db, "expenses", expenseId));
-    } catch (error) {
-      console.error("Error deleting expense:", error);
-      throw error;
-    }
-  },
-
-  async getMonthSummary(monthId: string): Promise<MonthlyBudget | null> {
-    try {
-      const expenses = await this.getMonthExpenses(monthId);
-      const totalAmount = expenses.reduce((sum, exp) => sum + exp.amount, 0);
-      const categories = expenses.reduce((acc, exp) => {
-        acc[exp.category] = (acc[exp.category] || 0) + exp.amount;
-        return acc;
-      }, {} as { [key: string]: number });
-
-      return {
-        id: monthId,
-        month: monthId,
-        expenses,
-        totalAmount,
-        categories,
-      };
-    } catch (error) {
-      console.error("Error getting month summary:", error);
-      throw error;
-    }
-  },
-
-  async createMonth(monthId: string) {
-    try {
-      const monthRef = await addDoc(collection(db, "months"), {
-        id: monthId,
-        month: monthId,
-        createdAt: new Date().toISOString(),
-        totalAmount: 0,
-        categories: {},
-      });
-      return monthRef.id;
+      console.log(`Created new month: ${month} with ID: ${docRef.id}`);
+      return month;
     } catch (error) {
       console.error("Error creating month:", error);
       throw error;
     }
-  },
+  }
 
-  async getMonth(monthId: string) {
+  async getMonth(monthId: string): Promise<boolean> {
     try {
-      const q = query(collection(db, "months"), where("month", "==", monthId));
+      console.log(`Checking month: ${monthId}`);
+      const monthsRef = collection(db, "months");
+      const q = query(monthsRef, where("month", "==", monthId));
       const querySnapshot = await getDocs(q);
-      return !querySnapshot.empty;
+      const exists = !querySnapshot.empty;
+      console.log(`Month ${monthId} exists: ${exists}`);
+      return exists;
     } catch (error) {
       console.error("Error checking month:", error);
-      throw error;
+      return false;
     }
-  },
+  }
 
-  async deleteMonth(monthId: string) {
+  async getMonthExpenses(monthId: string): Promise<Expense[]> {
     try {
-      // Delete all expenses for this month
-      const expensesQuery = query(
-        collection(db, "expenses"),
-        where("monthId", "==", monthId)
-      );
-      const querySnapshot = await getDocs(expensesQuery);
-      const deletePromises = querySnapshot.docs.map((doc) =>
-        deleteDoc(doc.ref)
-      );
-      await Promise.all(deletePromises);
+      const expensesRef = collection(db, "expenses");
+      const q = query(expensesRef, where("monthId", "==", monthId));
+      const querySnapshot = await getDocs(q);
 
-      const monthQuery = query(
-        collection(db, "months"),
-        where("month", "==", monthId)
-      );
-      const monthSnapshot = await getDocs(monthQuery);
-      if (!monthSnapshot.empty) {
-        await deleteDoc(monthSnapshot.docs[0].ref);
-      }
+      return querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      })) as Expense[];
     } catch (error) {
-      console.error("Error deleting month:", error);
+      console.error("Error getting expenses:", error);
+      return [];
+    }
+  }
+
+  async addExpense(monthId: string, expense: Omit<Expense, "id">) {
+    try {
+      const expensesRef = collection(db, "expenses");
+      const docRef = await addDoc(expensesRef, {
+        ...expense,
+        monthId,
+        createdAt: new Date().toISOString(),
+      });
+      return docRef.id;
+    } catch (error) {
+      console.error("Error adding expense:", error);
       throw error;
     }
-  },
+  }
 
-  async getAllMonths(): Promise<string[]> {
+  async getAllMonths(): Promise<MonthlyBudget[]> {
     try {
+      console.log("Fetching all months");
       const monthsRef = collection(db, "months");
-      const querySnapshot = await getDocs(monthsRef);
-      const months = querySnapshot.docs.map(
-        (doc) => doc.data().month as string
-      );
-      console.log("Raw months from DB:", months); // Debug log
-      return months.sort((a, b) => b.localeCompare(a));
+      const q = query(monthsRef, orderBy("createdAt", "desc"));
+      const querySnapshot = await getDocs(q);
+
+      const months = querySnapshot.docs.map((doc) => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          month: data.month,
+          createdAt: data.createdAt,
+        } as MonthlyBudget;
+      });
+
+      console.log(`Found ${months.length} months:`, months);
+      return months;
     } catch (error) {
       console.error("Error getting all months:", error);
       throw error;
     }
-  },
-};
+  }
+}
+
+export const budgetService = new BudgetService();
