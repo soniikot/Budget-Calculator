@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { budgetService } from "@/lib/budgetService";
+import { monthService } from "@/lib/monthService";
 
 export default function NewBudgetPage() {
   const router = useRouter();
@@ -14,7 +14,7 @@ export default function NewBudgetPage() {
 
     try {
       console.log("Creating month:", month);
-      await budgetService.createMonth(month);
+      await monthService.createMonth(month);
       console.log("Month created successfully");
       router.push(`/budget/${month}`);
     } catch (error) {

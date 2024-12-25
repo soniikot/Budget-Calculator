@@ -1,9 +1,9 @@
 "use client";
-import { useState, useEffect } from "react";
-import { eventBus } from "@/utils/eventBus";
+import { useEffect, useState } from "react";
 import { Transaction } from "@/types/budget";
 import { transactionService } from "@/lib/transactionService";
 import { BUDGET_CATEGORIES } from "@/constants/budget";
+import { eventBus } from "@/utils/eventBus";
 import { BUDGET_EVENTS } from "@/utils/eventTypes";
 
 export function TransactionTable() {
@@ -47,6 +47,18 @@ export function TransactionTable() {
     };
   }, []);
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const month = window.location.pathname.split("/budget/")[1];
+
+    async function loadTransactions() {
+      const transactions = await transactionService.getTransactions(month);
+      setTransactions(transactions);
+    }
+
+    loadTransactions();
+  }, []);
+
   const handleEdit = (transaction: Transaction) => {
     setEditingId(transaction.id);
     setEditingTransaction({ ...transaction });
@@ -57,8 +69,23 @@ export function TransactionTable() {
 
     try {
       await transactionService.updateTransaction(editingId, editingTransaction);
+
+      // Emit event to update UI
+      eventBus.emit(BUDGET_EVENTS.TRANSACTION_UPDATED, {
+        transactionId: editingId,
+        updates: editingTransaction,
+      });
+
+      // Reset editing state
       setEditingId(null);
       setEditingTransaction(null);
+
+      // Update transactions list
+      const month = window.location.pathname.split("/budget/")[1];
+      const updatedTransactions = await transactionService.getTransactions(
+        month
+      );
+      setTransactions(updatedTransactions);
     } catch (error) {
       console.error("Failed to update transaction:", error);
       alert("Failed to update transaction");

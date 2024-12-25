@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { budgetService } from "@/lib/budgetService";
+import { monthService } from "@/lib/monthService";
 import { MonthlyBudget } from "@/types/budget";
 
 export default function Home() {
@@ -12,7 +12,7 @@ export default function Home() {
   useEffect(() => {
     async function fetchMonths() {
       try {
-        const allMonths = await budgetService.getAllMonths();
+        const allMonths = await monthService.getAllMonths();
         setMonths(allMonths);
       } catch (error) {
         console.error("Error loading months:", error);

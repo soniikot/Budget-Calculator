@@ -11,16 +11,13 @@ import {
 } from "firebase/firestore";
 import { Expense, MonthlyBudget } from "@/types/budget";
 
-class BudgetService {
+class MonthService {
   async createMonth(month: string): Promise<string> {
     try {
-      // First check if month already exists
       const exists = await this.getMonth(month);
       if (exists) {
-        return month; // Return existing month
+        return month;
       }
-
-      // Create new month if it doesn't exist
       const monthsRef = collection(db, "months");
       const docRef = await addDoc(monthsRef, {
         month,
@@ -50,37 +47,6 @@ class BudgetService {
     }
   }
 
-  async getMonthExpenses(monthId: string): Promise<Expense[]> {
-    try {
-      const expensesRef = collection(db, "expenses");
-      const q = query(expensesRef, where("monthId", "==", monthId));
-      const querySnapshot = await getDocs(q);
-
-      return querySnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      })) as Expense[];
-    } catch (error) {
-      console.error("Error getting expenses:", error);
-      return [];
-    }
-  }
-
-  async addExpense(monthId: string, expense: Omit<Expense, "id">) {
-    try {
-      const expensesRef = collection(db, "expenses");
-      const docRef = await addDoc(expensesRef, {
-        ...expense,
-        monthId,
-        createdAt: new Date().toISOString(),
-      });
-      return docRef.id;
-    } catch (error) {
-      console.error("Error adding expense:", error);
-      throw error;
-    }
-  }
-
   async getAllMonths(): Promise<MonthlyBudget[]> {
     try {
       console.log("Fetching all months");
@@ -106,4 +72,4 @@ class BudgetService {
   }
 }
 
-export const budgetService = new BudgetService();
+export const monthService = new MonthService();

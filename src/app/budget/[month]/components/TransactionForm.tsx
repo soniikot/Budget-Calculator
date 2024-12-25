@@ -4,6 +4,8 @@ import { BUDGET_CATEGORIES } from "@/constants/budget";
 import { TransactionType } from "@/types/budget";
 import { transactionService } from "@/lib/transactionService";
 import { useParams } from "next/navigation";
+import { eventBus } from "@/utils/eventBus";
+import { BUDGET_EVENTS } from "@/utils/eventTypes";
 
 export function TransactionForm() {
   const params = useParams();
@@ -38,7 +40,14 @@ export function TransactionForm() {
         month,
       };
 
-      await transactionService.addTransaction(transactionData);
+      const savedTransaction = await transactionService.addTransaction(
+        transactionData
+      );
+
+      // Emit event to update the table
+      eventBus.emit(BUDGET_EVENTS.TRANSACTION_ADDED, {
+        transaction: savedTransaction,
+      });
 
       // Reset form
       setNewTransaction({

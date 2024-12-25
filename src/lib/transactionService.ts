@@ -7,10 +7,13 @@ import {
   updateDoc,
   serverTimestamp,
   getDoc,
+  getDocs,
+  query,
+  where,
 } from "firebase/firestore";
+import { Transaction } from "@/types/budget";
 import { eventBus } from "@/utils/eventBus";
 import { BUDGET_EVENTS } from "@/utils/eventTypes";
-import { Transaction } from "@/types/budget";
 
 export const transactionService = {
   async addTransaction(transaction: Omit<Transaction, "id">) {
@@ -20,10 +23,11 @@ export const transactionService = {
         createdAt: new Date().toISOString(),
       });
 
-      const savedTransaction = { ...transaction, id: docRef.id };
-      eventBus.emit(BUDGET_EVENTS.TRANSACTION_ADDED, {
-        transaction: savedTransaction,
-      });
+      const savedTransaction = {
+        id: docRef.id,
+        ...transaction,
+        createdAt: new Date().toISOString(),
+      };
       return savedTransaction;
     } catch (error) {
       console.error("Error adding transaction:", error);
@@ -31,37 +35,40 @@ export const transactionService = {
     }
   },
 
+  async getTransactions(month: string): Promise<Transaction[]> {
+    const q = query(
+      collection(db, "transactions"),
+      where("month", "==", month)
+    );
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(
+      (doc) => ({ id: doc.id, ...doc.data() } as Transaction)
+    );
+  },
+
   async updateTransaction(id: string, updates: Partial<Transaction>) {
     try {
       const docRef = doc(db, "transactions", id);
 
-      // Check if document exists first
       const docSnap = await getDoc(docRef);
       if (!docSnap.exists()) {
         throw new Error(`Transaction with ID ${id} does not exist`);
       }
 
-      const cleanUpdates = Object.fromEntries(
-        Object.entries(updates).filter(([_, value]) => value !== undefined)
-      );
-
       const updateData = {
-        ...cleanUpdates,
+        ...updates,
         updatedAt: serverTimestamp(),
       };
 
       await updateDoc(docRef, updateData);
 
+      // Emit event after successful update
       eventBus.emit(BUDGET_EVENTS.TRANSACTION_UPDATED, {
         transactionId: id,
         updates: updateData,
       });
 
-      if (updates.month) {
-        eventBus.emit(BUDGET_EVENTS.TRANSACTION_FETCH_REQUESTED, {
-          month: updates.month,
-        });
-      }
+      return true;
     } catch (error) {
       console.error("Error updating transaction:", error);
       throw error;
@@ -73,7 +80,6 @@ export const transactionService = {
       console.log("Attempting to delete transaction:", id);
       const docRef = doc(db, "transactions", id);
 
-      // Check if document exists first
       const docSnap = await getDoc(docRef);
       console.log("Document exists?", docSnap.exists());
 

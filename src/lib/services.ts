@@ -1,19 +1,17 @@
 import { eventBus } from "@/utils/eventBus";
-import { budgetService } from "@/lib/budgetService";
+import { monthService } from "@/lib/monthService";
 import { BUDGET_EVENTS } from "../utils/eventTypes";
 
 export function initializeEventListeners() {
-  // Initialize event listeners
   eventBus.on(BUDGET_EVENTS.MONTHS_FETCH_REQUESTED, async () => {
     try {
-      const months = await budgetService.getAllMonths();
+      const months = await monthService.getAllMonths();
       eventBus.emit(BUDGET_EVENTS.MONTHS_FETCH_SUCCEEDED, { months });
     } catch (error) {
       eventBus.emit(BUDGET_EVENTS.MONTHS_FETCH_FAILED, { error });
     }
   });
 
-  // Initialize transaction service event listeners
   eventBus.on(BUDGET_EVENTS.TRANSACTION_SAVE_REQUESTED, async (data) => {
     try {
       const { transaction, month } = data;
@@ -25,4 +23,4 @@ export function initializeEventListeners() {
   });
 }
 
-export { eventBus, budgetService };
+export { eventBus, monthService };
