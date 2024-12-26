@@ -51,8 +51,8 @@ export default function HomePage() {
         ) : (
           months
             .filter((month) => {
-              // Only keep months that match YYYY-MM format
-              return /^\d{4}-\d{2}$/.test(month);
+              // Basic validation - check if it's a string and has the correct format
+              return month && typeof month === "string" && month.includes("-");
             })
             .map((month) => {
               console.log("Month value:", month);
