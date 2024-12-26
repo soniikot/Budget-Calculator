@@ -49,20 +49,34 @@ export default function HomePage() {
             No budget months created yet. Create your first month budget!
           </p>
         ) : (
-          months.map((month) => (
-            <Link
-              key={month}
-              href={`/budget/${month}`}
-              className="p-6 bg-white rounded-lg shadow hover:shadow-lg transition-shadow"
-            >
-              <h2 className="text-xl font-semibold">
-                {new Date(month + "-01").toLocaleString("default", {
-                  month: "long",
-                  year: "numeric",
-                })}
-              </h2>
-            </Link>
-          ))
+          months
+            .filter((month) => {
+              // Only keep months that match YYYY-MM format
+              return /^\d{4}-\d{2}$/.test(month);
+            })
+            .map((month) => {
+              console.log("Month value:", month);
+              const [year, monthNum] = month.split("-");
+              const dateStr = `${year}-${monthNum}-01`;
+              const date = new Date(dateStr);
+
+              return (
+                <Link
+                  key={month}
+                  href={`/budget/${month}`}
+                  className="p-6 bg-white rounded-lg shadow hover:shadow-lg transition-shadow"
+                >
+                  <h2 className="text-xl font-semibold">
+                    {!isNaN(date.getTime())
+                      ? date.toLocaleString("default", {
+                          month: "long",
+                          year: "numeric",
+                        })
+                      : "Invalid Date"}
+                  </h2>
+                </Link>
+              );
+            })
         )}
       </div>
     </main>
