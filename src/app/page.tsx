@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { monthService } from "@/utils/monthService";
-import { MonthlyBudget } from "../app/types/types";
+import { MonthlyBudget } from "../types/month/types";
 
 export default function Home() {
   const [months, setMonths] = useState<MonthlyBudget[]>([]);
@@ -66,7 +66,6 @@ export default function Home() {
         })}
       </div>
 
-      {/* Empty State */}
       {months.length === 0 && (
         <div className="text-center text-gray-500 mt-8">
           No budget months found. Create your first one!

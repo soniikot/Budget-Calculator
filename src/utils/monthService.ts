@@ -7,7 +7,7 @@ import {
   addDoc,
   orderBy,
 } from "firebase/firestore";
-import { MonthlyBudget } from "@/types/budget";
+import { MonthlyBudget } from "@/types/month";
 
 class MonthService {
   /**

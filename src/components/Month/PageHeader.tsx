@@ -5,7 +5,6 @@ interface PageHeaderProps {
 }
 
 export function PageHeader({ month }: PageHeaderProps) {
-  // Parse the month string properly
   const [year, monthNum] = month.split("-");
   const date = new Date(parseInt(year), parseInt(monthNum) - 1);
 
