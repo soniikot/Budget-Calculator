@@ -1,61 +1,54 @@
 "use client";
 import { useEffect, useState } from "react";
 import { Transaction } from "@/types/budget";
-import { transactionService } from "@/utils/transactionService";
 import { BUDGET_CATEGORIES } from "@/constants/budget";
 import { eventBus } from "@/utils/eventBus";
-import { BUDGET_EVENTS } from "@/utils/eventTypes";
+import { EVENT_IDS } from "@/utils/eventsIds";
+import { useParams } from "next/navigation";
+import { BaseEvent } from "@/utils/eventBus";
+import { transactionService } from "@/utils/transactionService";
 
 export function TransactionTable() {
+  const { month } = useParams();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingTransaction, setEditingTransaction] =
     useState<Transaction | null>(null);
 
   useEffect(() => {
-    const deleteSubscription = eventBus.on(
-      BUDGET_EVENTS.TRANSACTION_DELETED,
-      ({ transactionId }) => {
-        setTransactions((current) =>
-          current.filter((t) => t.id !== transactionId)
-        );
-      }
-    );
-
-    const updateSubscription = eventBus.on(
-      BUDGET_EVENTS.TRANSACTION_UPDATED,
-      ({ transactionId, updates }) => {
-        setTransactions((current) =>
-          current.map((t) =>
-            t.id === transactionId ? { ...t, ...updates } : t
-          )
-        );
-      }
-    );
-
-    const addSubscription = eventBus.on(
-      BUDGET_EVENTS.TRANSACTION_ADDED,
-      ({ transaction }) => {
-        setTransactions((current) => [...current, transaction]);
-      }
-    );
-
-    return () => {
-      deleteSubscription();
-      updateSubscription();
-      addSubscription();
+    const handleDelete = (event: BaseEvent<{ transactionId: string }>) => {
+      setTransactions((current) =>
+        current.filter((t) => t.id !== event.payload.transactionId)
+      );
     };
-  }, []);
+
+    const handleUpdate = (
+      event: BaseEvent<{ transactionId: string; updates: Partial<Transaction> }>
+    ) => {
+      setTransactions((current) =>
+        current.map((t) =>
+          t.id === event.payload.transactionId
+            ? { ...t, ...event.payload.updates }
+            : t
+        )
+      );
+    };
+
+    const handleAdd = (event: BaseEvent<{ transaction: Transaction }>) => {
+      setTransactions((current) => [...current, event.payload.transaction]);
+    };
+
+    // Subscribe to events
+    eventBus.on(EVENT_IDS.TRANSACTION.DELETED, handleDelete);
+    eventBus.on(EVENT_IDS.TRANSACTION.UPDATED, handleUpdate);
+    eventBus.on(EVENT_IDS.TRANSACTION.ADDED, handleAdd);
+  }, [eventBus, EVENT_IDS]);
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const month = window.location.pathname.split("/budget/")[1];
-
     async function loadTransactions() {
       const transactions = await transactionService.getTransactions(month);
       setTransactions(transactions);
     }
-
     loadTransactions();
   }, []);
 
@@ -70,21 +63,20 @@ export function TransactionTable() {
     try {
       await transactionService.updateTransaction(editingId, editingTransaction);
 
-      // Emit event to update UI
-      eventBus.emit(BUDGET_EVENTS.TRANSACTION_UPDATED, {
-        transactionId: editingId,
-        updates: editingTransaction,
-      });
+      eventBus.emit(
+        new BaseEvent(EVENT_IDS.TRANSACTION.UPDATED, {
+          transactionId: editingId,
+          updates: editingTransaction,
+        })
+      );
 
-      // Reset editing state
       setEditingId(null);
       setEditingTransaction(null);
 
-      // Update transactions list
-      const month = window.location.pathname.split("/budget/")[1];
       const updatedTransactions = await transactionService.getTransactions(
         month
       );
+
       setTransactions(updatedTransactions);
     } catch (error) {
       console.error("Failed to update transaction:", error);

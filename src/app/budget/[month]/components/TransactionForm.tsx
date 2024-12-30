@@ -4,8 +4,8 @@ import { BUDGET_CATEGORIES } from "@/constants/budget";
 import { TransactionType } from "@/types/budget";
 import { transactionService } from "@/utils/transactionService";
 import { useParams } from "next/navigation";
-import { eventBus } from "@/utils/eventBus";
-import { BUDGET_EVENTS } from "@/utils/eventTypes";
+import { BaseEvent, eventBus } from "@/utils/eventBus";
+import { EVENT_IDS } from "@/utils/eventsIds";
 
 export function TransactionForm() {
   const params = useParams();
@@ -44,12 +44,6 @@ export function TransactionForm() {
         transactionData
       );
 
-      // Emit event to update the table
-      eventBus.emit(BUDGET_EVENTS.TRANSACTION_ADDED, {
-        transaction: savedTransaction,
-      });
-
-      // Reset form
       setNewTransaction({
         description: "",
         amount: "",
@@ -57,7 +51,7 @@ export function TransactionForm() {
         date: new Date().toISOString().split("T")[0],
       });
     } catch (error) {
-      console.error("Failed to save transaction:", error);
+      console.error("[handleSubmit] Failed to save transaction:", error);
       setError("Failed to save transaction");
     } finally {
       setIsSubmitting(false);
