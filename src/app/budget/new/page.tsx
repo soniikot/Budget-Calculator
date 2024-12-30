@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { monthService } from "@/lib/monthService";
+import { monthService } from "@/utils/monthService";
 
 export default function NewBudgetPage() {
   const router = useRouter();

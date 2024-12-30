@@ -1,4 +1,14 @@
-type EventCallback = (data: any) => void;
+type EventCallback<T = unknown> = (event: BaseEvent<T>) => void;
+
+export class BaseEvent<T = unknown> {
+  public readonly eventId: string;
+  public readonly payload: T;
+
+  constructor(eventId: string, payload: T) {
+    this.eventId = eventId;
+    this.payload = payload;
+  }
+}
 
 class EventBus {
   private events: { [key: string]: EventCallback[] } = {};
@@ -13,9 +23,9 @@ class EventBus {
     };
   }
 
-  emit(event: string, data?: any) {
-    if (this.events[event]) {
-      this.events[event].forEach((callback) => callback(data));
+  emit<T>(event: BaseEvent<T>) {
+    if (this.events[event.eventId]) {
+      this.events[event.eventId].forEach((callback) => callback(event));
     }
   }
 }

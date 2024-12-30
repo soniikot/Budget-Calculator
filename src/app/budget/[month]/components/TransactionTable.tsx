@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { Transaction } from "@/types/budget";
-import { transactionService } from "@/lib/transactionService";
+import { transactionService } from "@/utils/transactionService";
 import { BUDGET_CATEGORIES } from "@/constants/budget";
 import { eventBus } from "@/utils/eventBus";
 import { BUDGET_EVENTS } from "@/utils/eventTypes";

@@ -5,11 +5,9 @@ import {
   query,
   where,
   addDoc,
-  deleteDoc,
-  doc,
   orderBy,
 } from "firebase/firestore";
-import { Expense, MonthlyBudget } from "@/types/budget";
+import { MonthlyBudget } from "@/types/budget";
 
 class MonthService {
   async createMonth(month: string): Promise<string> {

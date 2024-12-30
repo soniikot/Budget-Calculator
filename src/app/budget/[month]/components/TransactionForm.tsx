@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { BUDGET_CATEGORIES } from "@/constants/budget";
 import { TransactionType } from "@/types/budget";
-import { transactionService } from "@/lib/transactionService";
+import { transactionService } from "@/utils/transactionService";
 import { useParams } from "next/navigation";
 import { eventBus } from "@/utils/eventBus";
 import { BUDGET_EVENTS } from "@/utils/eventTypes";

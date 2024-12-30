@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { monthService } from "@/lib/monthService";
+import { monthService } from "@/utils/monthService";
 import { MonthlyBudget } from "@/types/budget";
 
 export default function Home() {
