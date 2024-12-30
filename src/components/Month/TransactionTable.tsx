@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Transaction } from "../../types/types";
+import { Transaction } from "@/types/budget";
 import { BUDGET_CATEGORIES } from "@/constants/budget";
 import { eventBus } from "@/utils/eventBus";
 import { EVENT_IDS } from "@/utils/eventsIds";

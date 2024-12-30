@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { db } from "@/utils/firebase";
 import { collection, query, where, getDocs } from "firebase/firestore";
-import type { Transaction, TransactionSummary } from "../../types/types";
+import type { Transaction, TransactionSummary } from "@/types/budget";
 
 export function TransactionsSummary() {
   const [summary, setSummary] = useState<TransactionSummary>({

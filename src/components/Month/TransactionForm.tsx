@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { BUDGET_CATEGORIES } from "@/constants/budget";
-import { TransactionType } from "../../types/types";
+import { TransactionType } from "@/types/budget";
 import { transactionService } from "@/utils/transactionService";
 import { useParams } from "next/navigation";
 import { BaseEvent, eventBus } from "@/utils/eventBus";

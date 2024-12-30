@@ -122,7 +122,7 @@ export const createTransactionService = (db: Firestore) => {
         }
       });
 
-      eventBus.on(
+      eventBus.on(new BaseEvent(
         EVENT_IDS.TRANSACTION.SAVE_REQUESTED,
         async (data: { transaction: Transaction; month: string }) => {
           try {
