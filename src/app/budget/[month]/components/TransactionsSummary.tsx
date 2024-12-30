@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { db } from "@/utils/firebase";
 import { collection, query, where, getDocs } from "firebase/firestore";
-import type { Transaction, TransactionSummary } from "@/types/budget";
+import type { Transaction, TransactionSummary } from "../../types/types";
 
 export function TransactionsSummary() {
   const [summary, setSummary] = useState<TransactionSummary>({
@@ -83,7 +83,6 @@ export function TransactionsSummary() {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-      {/* Income Card */}
       <div className="bg-white p-6 rounded-lg shadow border-t-4 border-green-500">
         <h3 className="text-lg font-medium text-gray-600 mb-2">Total Income</h3>
         <p className="text-3xl font-bold text-green-600">
@@ -101,7 +100,6 @@ export function TransactionsSummary() {
         </div>
       </div>
 
-      {/* Expenses Card */}
       <div className="bg-white p-6 rounded-lg shadow border-t-4 border-red-500">
         <h3 className="text-lg font-medium text-gray-600 mb-2">
           Total Expenses
@@ -121,7 +119,6 @@ export function TransactionsSummary() {
         </div>
       </div>
 
-      {/* Balance Card */}
       <div
         className={`bg-white p-6 rounded-lg shadow border-t-4 
         ${summary.balance >= 0 ? "border-blue-500" : "border-yellow-500"}`}

@@ -30,15 +30,11 @@ export type TransactionSummary = {
 export type MonthlyBudget = {
   id: string;
   month: string;
-  createdAt: string;
+  year: number;
 };
 
 export interface MonthBudgetPageProps {
   params: Promise<{
     month: string;
   }>;
-}
-
-export interface Props {
-  month: string;
 }

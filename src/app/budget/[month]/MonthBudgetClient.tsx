@@ -3,6 +3,7 @@ import { useRouter } from "next/navigation";
 import { PageHeader } from "./components/PageHeader";
 import { TransactionForm } from "./components/TransactionForm";
 import { TransactionTable } from "./components/TransactionTable";
+import { TransactionsSummary } from "./components/TransactionsSummary";
 
 interface Props {
   month: string;
@@ -15,6 +16,7 @@ export default function MonthBudgetClient({ month }: Props) {
     <main className="p-6">
       <PageHeader month={month} />
       <TransactionForm />
+      <TransactionsSummary />
       <TransactionTable />
     </main>
   );

@@ -10,34 +10,56 @@ import {
 import { MonthlyBudget } from "@/types/budget";
 
 class MonthService {
-  async createMonth(month: string): Promise<string> {
+  /**
+   * Create a new month entry if it doesn't already exist.
+   * @param year - The year of the month (e.g., 2024)
+   * @param month - The numeric month (e.g., "06")
+   * @returns The created month identifier (e.g., "2024-06")
+   */
+  async createMonth(year: number, month: string): Promise<string> {
     try {
-      const exists = await this.getMonth(month);
+      const exists = await this.getMonth(year, month);
       if (exists) {
-        return month;
+        console.log(`Month ${year}-${month} already exists.`);
+        return `${year}-${month}`;
       }
+
       const monthsRef = collection(db, "months");
       const docRef = await addDoc(monthsRef, {
+        year,
         month,
+        name: new Date(`${year}-${month}-01`).toLocaleString("default", {
+          month: "long",
+        }),
         createdAt: new Date().toISOString(),
       });
 
-      console.log(`Created new month: ${month} with ID: ${docRef.id}`);
-      return month;
+      console.log(`Created new month: ${year}-${month} with ID: ${docRef.id}`);
+      return `${year}-${month}`;
     } catch (error) {
       console.error("Error creating month:", error);
       throw error;
     }
   }
 
-  async getMonth(monthId: string): Promise<boolean> {
+  /**
+   * Check if a specific month entry exists.
+   * @param year - The year of the month (e.g., 2024)
+   * @param month - The numeric month (e.g., "06")
+   * @returns True if the month exists, false otherwise.
+   */
+  async getMonth(year: number, month: string): Promise<boolean> {
     try {
-      console.log(`Checking month: ${monthId}`);
+      console.log(`Checking month: ${year}-${month}`);
       const monthsRef = collection(db, "months");
-      const q = query(monthsRef, where("month", "==", monthId));
+      const q = query(
+        monthsRef,
+        where("year", "==", year),
+        where("month", "==", month)
+      );
       const querySnapshot = await getDocs(q);
       const exists = !querySnapshot.empty;
-      console.log(`Month ${monthId} exists: ${exists}`);
+      console.log(`Month ${year}-${month} exists: ${exists}`);
       return exists;
     } catch (error) {
       console.error("Error checking month:", error);
@@ -45,6 +67,10 @@ class MonthService {
     }
   }
 
+  /**
+   * Fetch all months sorted by creation date (descending).
+   * @returns A list of all months in the database.
+   */
   async getAllMonths(): Promise<MonthlyBudget[]> {
     try {
       console.log("Fetching all months");
@@ -56,8 +82,8 @@ class MonthService {
         const data = doc.data();
         return {
           id: doc.id,
+          year: data.year,
           month: data.month,
-          createdAt: data.createdAt,
         } as MonthlyBudget;
       });
 

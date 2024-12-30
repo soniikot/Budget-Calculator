@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { monthService } from "@/utils/monthService";
-import { MonthlyBudget } from "@/types/budget";
+import { MonthlyBudget } from "../app/types/types";
 
 export default function Home() {
   const [months, setMonths] = useState<MonthlyBudget[]>([]);
@@ -25,8 +25,13 @@ export default function Home() {
     fetchMonths();
   }, []);
 
-  if (loading) return <div className="p-6">Loading...</div>;
-  if (error) return <div className="p-6 text-red-600">{error}</div>;
+  if (loading) {
+    return <div className="p-6">Loading...</div>;
+  }
+
+  if (error) {
+    return <div className="p-6 text-red-600">{error}</div>;
+  }
 
   return (
     <main className="p-6">
@@ -42,13 +47,12 @@ export default function Home() {
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {months.map((month) => {
-          const [year, monthNum] = month.month.split("-");
-          const date = new Date(parseInt(year), parseInt(monthNum) - 1);
+          const date = new Date(`${month.year}-${month.month}-01`);
 
           return (
             <Link
               key={month.id}
-              href={`/budget/${month.month}`}
+              href={`/budget/${month.year}-${month.month}`}
               className="block p-6 bg-white rounded-lg shadow hover:shadow-md transition-shadow"
             >
               <div className="text-lg font-semibold">
@@ -57,14 +61,12 @@ export default function Home() {
                   month: "long",
                 })}
               </div>
-              <div className="text-sm text-gray-500">
-                Created: {new Date(month.createdAt).toLocaleDateString()}
-              </div>
             </Link>
           );
         })}
       </div>
 
+      {/* Empty State */}
       {months.length === 0 && (
         <div className="text-center text-gray-500 mt-8">
           No budget months found. Create your first one!

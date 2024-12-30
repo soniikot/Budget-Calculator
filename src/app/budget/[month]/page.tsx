@@ -1,5 +1,5 @@
 import MonthBudgetClient from "./MonthBudgetClient";
-import { MonthBudgetPageProps } from "@/types/budget";
+import { MonthBudgetPageProps } from "@/app/budget/types/types";
 
 export default async function BudgetMonthPage({
   params,
