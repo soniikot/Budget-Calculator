@@ -34,7 +34,7 @@ export default function YearlyBudgetPage() {
   }, [year]);
 
   useEffect(() => {
-    const onMonthCreated = (payload: any) => {
+    const onMonthCreated = (payload: MonthlyBudget) => {
       console.log("New month created:", payload);
       if (payload.year === Number(year)) {
         setMonths((current) => [...current, payload]);
@@ -58,7 +58,6 @@ export default function YearlyBudgetPage() {
 
   return (
     <main className="p-6">
-      {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Budget for Year {year}</h1>
         <button
@@ -69,7 +68,6 @@ export default function YearlyBudgetPage() {
         </button>
       </div>
 
-      {/* Months Grid */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {months.map((month) => (
           <div
