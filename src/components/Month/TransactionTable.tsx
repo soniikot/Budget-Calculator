@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Transaction } from "../../types/month/types";
+import { Transaction } from "../../types/transactionType/types";
 import { BUDGET_CATEGORIES } from "@/constants/budget";
 import { eventBus } from "@/utils/eventBus";
 import { TRANSACTION, MONTH } from "@/utils/eventsIds";
@@ -58,7 +58,6 @@ export function TransactionTable() {
 
   const handleUpdate = async () => {
     if (!editingTransaction || !editingId) return;
-
     try {
       await transactionService.updateTransaction(editingId, editingTransaction);
 

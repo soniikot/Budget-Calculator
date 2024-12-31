@@ -9,7 +9,7 @@ import {
 } from "firebase/firestore";
 import { MonthlyBudget } from "@/types/month/types";
 import { BaseEvent, eventBus } from "@/utils/eventBus";
-import { TRANSACTION, MONTH } from "@/utils/eventsIds";
+import { MONTH } from "@/utils/eventsIds";
 
 class MonthService {
   /**

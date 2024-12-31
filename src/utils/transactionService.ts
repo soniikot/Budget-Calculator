@@ -11,9 +11,12 @@ import {
   query,
   where,
 } from "firebase/firestore";
-import { Transaction } from "@/types/month/types";
+import {
+  Transaction,
+  CreateTransactionData,
+} from "@/types/transactionType/types";
 import { eventBus } from "@/utils/eventBus";
-import { TRANSACTION, MONTH } from "@/utils/eventsIds";
+import { TRANSACTION } from "@/utils/eventsIds";
 import { BaseEvent } from "@/utils/eventBus";
 import { db } from "@/utils/firebase";
 
@@ -25,7 +28,7 @@ function handleError(error: unknown, context: string) {
 export const createTransactionService = (db: Firestore) => {
   return {
     async addTransaction(
-      transaction: Omit<Transaction, "id" | "createdAt">
+      transaction: CreateTransactionData
     ): Promise<Transaction> {
       try {
         const docRef = await addDoc(collection(db, "transactions"), {

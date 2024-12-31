@@ -2,7 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { transactionService } from "@/utils/transactionService";
-import type { Transaction, TransactionSummary } from "../../types/month/types";
+import type {
+  Transaction,
+  TransactionSummary,
+} from "../../types/transactionType/types";
 import { useParams } from "next/navigation";
 import { eventBus } from "@/utils/eventBus";
 import { TRANSACTION, MONTH } from "@/utils/eventsIds";
@@ -24,6 +27,10 @@ export function TransactionsSummary() {
     const handleTransactionUpdate = () => {
       loadTransactions();
     };
+
+    eventBus.on(TRANSACTION.ADDED, handleTransactionUpdate);
+    eventBus.on(TRANSACTION.UPDATED, handleTransactionUpdate);
+    eventBus.on(TRANSACTION.DELETED, handleTransactionUpdate);
   }, [year, month]);
 
   const loadTransactions = async () => {
