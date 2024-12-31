@@ -31,8 +31,6 @@ export default function NewBudgetPage() {
         throw new Error("Failed to create month.");
       }
 
-      console.log("Month created successfully:", response);
-
       router.push(`/budget/${currentYear}/${currentMonth}`);
     } catch (err) {
       const errorMessage =
