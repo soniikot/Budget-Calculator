@@ -8,6 +8,7 @@ import {
   orderBy,
 } from "firebase/firestore";
 import { MonthlyBudget } from "@/types/month";
+import { eventBus } from "@/utils/eventBus";
 
 class MonthService {
   /**
@@ -35,9 +36,14 @@ class MonthService {
       });
 
       console.log(`Created new month: ${year}-${month} with ID: ${docRef.id}`);
+
+      // Emit event after successfully creating a month
+      eventBus.emit("month:created", { year, month, id: docRef.id });
+
       return `${year}-${month}`;
     } catch (error) {
       console.error("Error creating month:", error);
+      eventBus.emit("month:error", { error, action: "create" });
       throw error;
     }
   }
@@ -63,6 +69,7 @@ class MonthService {
       return exists;
     } catch (error) {
       console.error("Error checking month:", error);
+      eventBus.emit("month:error", { error, action: "check" });
       return false;
     }
   }
@@ -88,9 +95,14 @@ class MonthService {
       });
 
       console.log(`Found ${months.length} months:`, months);
+
+      // Emit event after successfully fetching all months
+      eventBus.emit("months:fetched", months);
+
       return months;
     } catch (error) {
       console.error("Error getting all months:", error);
+      eventBus.emit("month:error", { error, action: "fetchAll" });
       throw error;
     }
   }
