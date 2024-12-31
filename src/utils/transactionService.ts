@@ -13,7 +13,7 @@ import {
 } from "firebase/firestore";
 import { Transaction } from "@/types/month/types";
 import { eventBus } from "@/utils/eventBus";
-import { EVENT_IDS } from "@/utils/eventsIds";
+import { TRANSACTION, MONTH } from "@/utils/eventsIds";
 import { BaseEvent } from "@/utils/eventBus";
 import { db } from "@/utils/firebase";
 
@@ -40,7 +40,7 @@ export const createTransactionService = (db: Firestore) => {
         };
 
         eventBus.emit(
-          new BaseEvent(EVENT_IDS.TRANSACTION.ADDED, {
+          new BaseEvent(TRANSACTION.ADDED, {
             transaction: newTransaction,
           })
         );
@@ -87,7 +87,7 @@ export const createTransactionService = (db: Firestore) => {
         });
 
         eventBus.emit(
-          new BaseEvent(EVENT_IDS.TRANSACTION.UPDATED, {
+          new BaseEvent(TRANSACTION.UPDATED, {
             transactionId: id,
             updates,
           })
@@ -104,7 +104,7 @@ export const createTransactionService = (db: Firestore) => {
         await deleteDoc(docRef);
 
         eventBus.emit(
-          new BaseEvent(EVENT_IDS.TRANSACTION.DELETED, {
+          new BaseEvent(TRANSACTION.DELETED, {
             transactionId: id,
           })
         );

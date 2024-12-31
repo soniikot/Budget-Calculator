@@ -5,7 +5,7 @@ import { transactionService } from "@/utils/transactionService";
 import type { Transaction, TransactionSummary } from "../../types/month/types";
 import { useParams } from "next/navigation";
 import { eventBus } from "@/utils/eventBus";
-import { EVENT_IDS } from "@/utils/eventsIds";
+import { TRANSACTION, MONTH } from "@/utils/eventsIds";
 
 export function TransactionsSummary() {
   const { year, month } = useParams() as { year: string; month: string };
@@ -24,10 +24,6 @@ export function TransactionsSummary() {
     const handleTransactionUpdate = () => {
       loadTransactions();
     };
-
-    eventBus.on(EVENT_IDS.TRANSACTION.ADDED, handleTransactionUpdate);
-    eventBus.on(EVENT_IDS.TRANSACTION.UPDATED, handleTransactionUpdate);
-    eventBus.on(EVENT_IDS.TRANSACTION.DELETED, handleTransactionUpdate);
   }, [year, month]);
 
   const loadTransactions = async () => {

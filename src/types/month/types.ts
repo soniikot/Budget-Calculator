@@ -32,9 +32,3 @@ export type MonthlyBudget = {
   month: string;
   year: number;
 };
-
-export interface MonthBudgetPageProps {
-  params: Promise<{
-    month: string;
-  }>;
-}

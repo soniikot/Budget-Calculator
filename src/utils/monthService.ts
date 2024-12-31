@@ -9,7 +9,7 @@ import {
 } from "firebase/firestore";
 import { MonthlyBudget } from "@/types/month/types";
 import { BaseEvent, eventBus } from "@/utils/eventBus";
-import { EVENT_IDS } from "@/utils/eventsIds";
+import { TRANSACTION, MONTH } from "@/utils/eventsIds";
 
 class MonthService {
   /**
@@ -22,7 +22,6 @@ class MonthService {
     try {
       const exists = await this.getMonth(year, month);
       if (exists) {
-        console.log(`Month ${year}-${month} already exists.`);
         return `${year}-${month}`;
       }
 
@@ -38,15 +37,13 @@ class MonthService {
 
       // Emit event after successfully creating a month
       eventBus.emit(
-        new BaseEvent(EVENT_IDS.MONTH.CREATED, { year, month, id: docRef.id })
+        new BaseEvent(MONTH.CREATED, { year, month, id: docRef.id })
       );
 
       return `${year}-${month}`;
     } catch (error) {
       console.error("❌ Error creating month:", error);
-      eventBus.emit(
-        new BaseEvent(EVENT_IDS.MONTH.ERROR, { error, action: "create" })
-      );
+      eventBus.emit(new BaseEvent(MONTH.ERROR, { error, action: "create" }));
       throw error;
     }
   }
@@ -70,9 +67,7 @@ class MonthService {
       return exists;
     } catch (error) {
       console.error("❌ Error checking month:", error);
-      eventBus.emit(
-        new BaseEvent(EVENT_IDS.MONTH.ERROR, { error, action: "check" })
-      );
+      eventBus.emit(new BaseEvent(MONTH.ERROR, { error, action: "check" }));
       return false;
     }
   }
@@ -96,14 +91,12 @@ class MonthService {
         } as MonthlyBudget;
       });
 
-      eventBus.emit(new BaseEvent(EVENT_IDS.MONTH.FETCH_SUCCEEDED, months));
+      eventBus.emit(new BaseEvent(MONTH.FETCH_SUCCEEDED, months));
 
       return months;
     } catch (error) {
       console.error("❌ Error getting all months:", error);
-      eventBus.emit(
-        new BaseEvent(EVENT_IDS.MONTH.ERROR, { error, action: "fetchAll" })
-      );
+      eventBus.emit(new BaseEvent(MONTH.ERROR, { error, action: "fetchAll" }));
       throw error;
     }
   }

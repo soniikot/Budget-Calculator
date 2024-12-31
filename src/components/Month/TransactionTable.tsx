@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { Transaction } from "../../types/month/types";
 import { BUDGET_CATEGORIES } from "@/constants/budget";
 import { eventBus } from "@/utils/eventBus";
-import { EVENT_IDS } from "@/utils/eventsIds";
+import { TRANSACTION, MONTH } from "@/utils/eventsIds";
 import { useParams } from "next/navigation";
 import { BaseEvent } from "@/utils/eventBus";
 import { transactionService } from "@/utils/transactionService";
@@ -38,9 +38,9 @@ export function TransactionTable() {
       setTransactions((current) => [...current, event.payload.transaction]);
     };
 
-    eventBus.on(EVENT_IDS.TRANSACTION.DELETED, handleDelete);
-    eventBus.on(EVENT_IDS.TRANSACTION.UPDATED, handleUpdate);
-    eventBus.on(EVENT_IDS.TRANSACTION.ADDED, handleAdd);
+    eventBus.on(TRANSACTION.DELETED, handleDelete);
+    eventBus.on(TRANSACTION.UPDATED, handleUpdate);
+    eventBus.on(TRANSACTION.ADDED, handleAdd);
   }, [month]);
 
   useEffect(() => {
@@ -63,7 +63,7 @@ export function TransactionTable() {
       await transactionService.updateTransaction(editingId, editingTransaction);
 
       eventBus.emit(
-        new BaseEvent(EVENT_IDS.TRANSACTION.UPDATED, {
+        new BaseEvent(TRANSACTION.UPDATED, {
           transactionId: editingId,
           updates: editingTransaction,
         })
