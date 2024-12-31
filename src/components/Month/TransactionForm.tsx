@@ -4,7 +4,7 @@ import { BUDGET_CATEGORIES } from "@/constants/budget";
 import { TransactionType } from "../../types/month/types";
 import { transactionService } from "@/utils/transactionService";
 import { useParams } from "next/navigation";
-import { eventBus } from "@/utils/eventBus";
+import { BaseEvent, eventBus } from "@/utils/eventBus";
 import { EVENT_IDS } from "@/utils/eventsIds";
 
 export function TransactionForm() {
@@ -44,12 +44,6 @@ export function TransactionForm() {
         transactionData
       );
 
-      // Emit event to notify listeners (e.g., TransactionsSummary)
-      eventBus.emit(EVENT_IDS.TRANSACTION.ADDED, {
-        transaction: savedTransaction,
-      });
-
-      // Reset form
       setNewTransaction({
         description: "",
         amount: "",

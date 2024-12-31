@@ -33,22 +33,6 @@ export default function YearlyBudgetPage() {
     fetchMonthsForYear();
   }, [year]);
 
-  useEffect(() => {
-    const onMonthCreated = (payload: MonthlyBudget) => {
-      console.log("New month created:", payload);
-      if (payload.year === Number(year)) {
-        setMonths((current) => [...current, payload]);
-      }
-    };
-
-    const onMonthError = (payload: any) => {
-      console.error("Error occurred in MonthService:", payload);
-    };
-
-    eventBus.on("month:created", onMonthCreated);
-    eventBus.on("month:error", onMonthError);
-  }, [year]);
-
   const handleMonthClick = (month: string) => {
     router.push(`/budget/${year}/${month}`);
   };

@@ -11,7 +11,7 @@ import {
   query,
   where,
 } from "firebase/firestore";
-import { Transaction } from "@/types/budget";
+import { Transaction } from "@/types/month/types";
 import { eventBus } from "@/utils/eventBus";
 import { EVENT_IDS } from "@/utils/eventsIds";
 import { BaseEvent } from "@/utils/eventBus";
@@ -48,6 +48,7 @@ export const createTransactionService = (db: Firestore) => {
         return newTransaction;
       } catch (error) {
         handleError(error, "addTransaction");
+        throw error;
       }
     },
 
@@ -70,6 +71,7 @@ export const createTransactionService = (db: Firestore) => {
         });
       } catch (error) {
         handleError(error, "getTransactions");
+        throw error;
       }
     },
 
@@ -92,6 +94,7 @@ export const createTransactionService = (db: Firestore) => {
         );
       } catch (error) {
         handleError(error, "updateTransaction");
+        throw error;
       }
     },
 
@@ -108,42 +111,6 @@ export const createTransactionService = (db: Firestore) => {
       } catch (error) {
         handleError(error, "deleteTransaction");
       }
-    },
-
-    initializeEventListeners() {
-      eventBus.on(EVENT_IDS.MONTH.FETCH_REQUESTED, async () => {
-        try {
-          const months = await this.getTransactions("2024-06"); // Example usage
-          eventBus.emit(
-            new BaseEvent(EVENT_IDS.MONTH.FETCH_SUCCEEDED, { months })
-          );
-        } catch (error) {
-          eventBus.emit(new BaseEvent(EVENT_IDS.MONTH.FETCH_FAILED, { error }));
-        }
-      });
-
-      eventBus.on(
-        EVENT_IDS.TRANSACTION.SAVE_REQUESTED,
-        async (data: { transaction: Transaction; month: string }) => {
-          try {
-            const { transaction, month } = data;
-            await this.addTransaction(transaction);
-
-            eventBus.emit(
-              new BaseEvent(EVENT_IDS.TRANSACTION.SAVE_SUCCEEDED, {
-                transaction,
-                month,
-              })
-            );
-          } catch (error) {
-            eventBus.emit(
-              new BaseEvent(EVENT_IDS.TRANSACTION.SAVE_FAILED, {
-                error: (error as Error).message,
-              })
-            );
-          }
-        }
-      );
     },
   };
 };

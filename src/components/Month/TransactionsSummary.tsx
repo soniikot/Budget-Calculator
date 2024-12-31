@@ -8,7 +8,7 @@ import { eventBus } from "@/utils/eventBus";
 import { EVENT_IDS } from "@/utils/eventsIds";
 
 export function TransactionsSummary() {
-  const { year, month } = useParams();
+  const { year, month } = useParams() as { year: string; month: string };
   const [summary, setSummary] = useState<TransactionSummary>({
     totalExpenses: 0,
     totalIncome: 0,

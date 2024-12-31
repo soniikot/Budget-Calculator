@@ -1,4 +1,6 @@
-type EventCallback<T = unknown> = (event: BaseEvent<T>) => void;
+type EventCallback<T extends Record<string, any> = any> = (
+  event: BaseEvent<T>
+) => void;
 
 export class BaseEvent<T = unknown> {
   public readonly eventId: string;

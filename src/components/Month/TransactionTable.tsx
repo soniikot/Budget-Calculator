@@ -9,8 +9,10 @@ import { BaseEvent } from "@/utils/eventBus";
 import { transactionService } from "@/utils/transactionService";
 
 export function TransactionTable() {
-  const { month } = useParams();
-
+  const { month } = useParams() as { year: string; month: string };
+  if (typeof month !== "string") {
+    return <div>Error: Invalid or missing month parameter.</div>;
+  }
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingTransaction, setEditingTransaction] =

@@ -15,6 +15,8 @@ export namespace EVENT_IDS {
   }
 
   export enum MONTH {
+    CREATED = "month:created",
+    ERROR = "month:error",
     SELECTED = "month:selected",
     DELETED = "month:deleted",
     FETCH_REQUESTED = "months:fetch:requested",

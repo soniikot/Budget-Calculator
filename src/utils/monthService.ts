@@ -7,8 +7,9 @@ import {
   addDoc,
   orderBy,
 } from "firebase/firestore";
-import { MonthlyBudget } from "@/types/month";
-import { eventBus } from "@/utils/eventBus";
+import { MonthlyBudget } from "@/types/month/types";
+import { BaseEvent, eventBus } from "@/utils/eventBus";
+import { EVENT_IDS } from "@/utils/eventsIds";
 
 class MonthService {
   /**
@@ -35,15 +36,17 @@ class MonthService {
         createdAt: new Date().toISOString(),
       });
 
-      console.log(`Created new month: ${year}-${month} with ID: ${docRef.id}`);
-
       // Emit event after successfully creating a month
-      eventBus.emit("month:created", { year, month, id: docRef.id });
+      eventBus.emit(
+        new BaseEvent(EVENT_IDS.MONTH.CREATED, { year, month, id: docRef.id })
+      );
 
       return `${year}-${month}`;
     } catch (error) {
-      console.error("Error creating month:", error);
-      eventBus.emit("month:error", { error, action: "create" });
+      console.error("❌ Error creating month:", error);
+      eventBus.emit(
+        new BaseEvent(EVENT_IDS.MONTH.ERROR, { error, action: "create" })
+      );
       throw error;
     }
   }
@@ -56,7 +59,6 @@ class MonthService {
    */
   async getMonth(year: number, month: string): Promise<boolean> {
     try {
-      console.log(`Checking month: ${year}-${month}`);
       const monthsRef = collection(db, "months");
       const q = query(
         monthsRef,
@@ -65,11 +67,12 @@ class MonthService {
       );
       const querySnapshot = await getDocs(q);
       const exists = !querySnapshot.empty;
-      console.log(`Month ${year}-${month} exists: ${exists}`);
       return exists;
     } catch (error) {
-      console.error("Error checking month:", error);
-      eventBus.emit("month:error", { error, action: "check" });
+      console.error("❌ Error checking month:", error);
+      eventBus.emit(
+        new BaseEvent(EVENT_IDS.MONTH.ERROR, { error, action: "check" })
+      );
       return false;
     }
   }
@@ -80,7 +83,6 @@ class MonthService {
    */
   async getAllMonths(): Promise<MonthlyBudget[]> {
     try {
-      console.log("Fetching all months");
       const monthsRef = collection(db, "months");
       const q = query(monthsRef, orderBy("createdAt", "desc"));
       const querySnapshot = await getDocs(q);
@@ -94,15 +96,14 @@ class MonthService {
         } as MonthlyBudget;
       });
 
-      console.log(`Found ${months.length} months:`, months);
-
-      // Emit event after successfully fetching all months
-      eventBus.emit("months:fetched", months);
+      eventBus.emit(new BaseEvent(EVENT_IDS.MONTH.FETCH_SUCCEEDED, months));
 
       return months;
     } catch (error) {
-      console.error("Error getting all months:", error);
-      eventBus.emit("month:error", { error, action: "fetchAll" });
+      console.error("❌ Error getting all months:", error);
+      eventBus.emit(
+        new BaseEvent(EVENT_IDS.MONTH.ERROR, { error, action: "fetchAll" })
+      );
       throw error;
     }
   }
