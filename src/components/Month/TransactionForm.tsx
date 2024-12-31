@@ -4,8 +4,6 @@ import { BUDGET_CATEGORIES } from "@/constants/budget";
 import { TransactionType } from "../../types/month/types";
 import { transactionService } from "@/utils/transactionService";
 import { useParams } from "next/navigation";
-import { BaseEvent, eventBus } from "@/utils/eventBus";
-import { EVENT_IDS } from "@/utils/eventsIds";
 
 export function TransactionForm() {
   const params = useParams();
@@ -40,9 +38,7 @@ export function TransactionForm() {
         month,
       };
 
-      const savedTransaction = await transactionService.addTransaction(
-        transactionData
-      );
+      await transactionService.addTransaction(transactionData);
 
       setNewTransaction({
         description: "",

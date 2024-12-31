@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { monthService } from "@/utils/monthService";
-import { MonthlyBudget } from "@/types/month/types";
 
 export default function Home() {
   const [years, setYears] = useState<number[]>([]);
@@ -16,14 +15,13 @@ export default function Home() {
       try {
         const allMonths = await monthService.getAllMonths();
 
-        // Extract and validate unique years from months
         const uniqueYears = Array.from(
           new Set(
             allMonths
-              .map((month) => month.year) // Extract years
-              .filter((year) => typeof year === "number" && !isNaN(year)) // Ensure valid years
+              .map((month) => month.year)
+              .filter((year) => typeof year === "number" && !isNaN(year))
           )
-        ).sort((a, b) => b - a); // Sort descending
+        ).sort((a, b) => b - a);
 
         setYears(uniqueYears);
       } catch (error) {

@@ -10,9 +10,6 @@ import { transactionService } from "@/utils/transactionService";
 
 export function TransactionTable() {
   const { month } = useParams() as { year: string; month: string };
-  if (typeof month !== "string") {
-    return <div>Error: Invalid or missing month parameter.</div>;
-  }
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingTransaction, setEditingTransaction] =
@@ -44,7 +41,7 @@ export function TransactionTable() {
     eventBus.on(EVENT_IDS.TRANSACTION.DELETED, handleDelete);
     eventBus.on(EVENT_IDS.TRANSACTION.UPDATED, handleUpdate);
     eventBus.on(EVENT_IDS.TRANSACTION.ADDED, handleAdd);
-  }, [eventBus, EVENT_IDS]);
+  }, [month]);
 
   useEffect(() => {
     async function loadTransactions() {

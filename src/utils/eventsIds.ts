@@ -1,4 +1,4 @@
-export namespace EVENT_IDS {
+export module EVENT_IDS {
   export enum TRANSACTION {
     ADDED = "transaction:added",
     DELETED = "transaction:deleted",

@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { monthService } from "@/utils/monthService";
 import { MonthlyBudget } from "@/types/month/types";
-import { eventBus } from "@/utils/eventBus";
 import { getMonthName } from "@/utils/getMonthName";
 
 export default function YearlyBudgetPage() {

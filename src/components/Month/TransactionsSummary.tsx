@@ -20,11 +20,6 @@ export function TransactionsSummary() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!year || !month) {
-      setError("Invalid month or year parameters.");
-      setIsLoading(false);
-      return;
-    }
     loadTransactions();
     const handleTransactionUpdate = () => {
       loadTransactions();
