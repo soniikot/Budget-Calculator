@@ -10,6 +10,7 @@ import { transactionService } from "@/utils/transactionService";
 
 export function TransactionTable() {
   const { month } = useParams();
+
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingTransaction, setEditingTransaction] =
@@ -38,7 +39,6 @@ export function TransactionTable() {
       setTransactions((current) => [...current, event.payload.transaction]);
     };
 
-    // Subscribe to events
     eventBus.on(EVENT_IDS.TRANSACTION.DELETED, handleDelete);
     eventBus.on(EVENT_IDS.TRANSACTION.UPDATED, handleUpdate);
     eventBus.on(EVENT_IDS.TRANSACTION.ADDED, handleAdd);

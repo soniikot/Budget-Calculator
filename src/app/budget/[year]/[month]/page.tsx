@@ -5,17 +5,10 @@ import { TransactionForm } from "@/components/Month/TransactionForm";
 import { TransactionTable } from "@/components/Month/TransactionTable";
 import { TransactionsSummary } from "@/components/Month/TransactionsSummary";
 
-interface Props {
-  params: { month: string };
-}
-
-export default function BudgetMonthPage({ params }: Props) {
-  const router = useRouter();
-  const { month } = params;
-
+export default function BudgetMonthPage() {
   return (
     <main className="p-6">
-      <PageHeader month={month} />
+      <PageHeader />
       <TransactionForm />
       <TransactionsSummary />
       <TransactionTable />

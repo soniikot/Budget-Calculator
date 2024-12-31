@@ -5,9 +5,10 @@ import { useRouter, useParams } from "next/navigation";
 import { monthService } from "@/utils/monthService";
 import { MonthlyBudget } from "@/types/month/types";
 import { eventBus } from "@/utils/eventBus";
+import { getMonthName } from "@/utils/getMonthName";
 
 export default function YearlyBudgetPage() {
-  const { year } = useParams(); // Fetch dynamic year parameter from the route
+  const { year } = useParams();
   const router = useRouter();
   const [months, setMonths] = useState<MonthlyBudget[]>([]);
   const [loading, setLoading] = useState(true);
@@ -33,7 +34,6 @@ export default function YearlyBudgetPage() {
   }, [year]);
 
   useEffect(() => {
-    // Listen for month creation event
     const onMonthCreated = (payload: any) => {
       console.log("New month created:", payload);
       if (payload.year === Number(year)) {
@@ -78,18 +78,12 @@ export default function YearlyBudgetPage() {
             className="block p-6 bg-white rounded-lg shadow hover:shadow-md transition-shadow text-center cursor-pointer"
           >
             <div className="text-lg font-semibold">
-              {new Date(`${year}-${month.month}-01`).toLocaleDateString(
-                undefined,
-                {
-                  month: "long",
-                }
-              )}
+              {getMonthName(Number(month.month))}
             </div>
           </div>
         ))}
       </div>
 
-      {/* Empty State */}
       {months.length === 0 && (
         <div className="text-center text-gray-500 mt-8">
           No months found for this year. Create your first one!
