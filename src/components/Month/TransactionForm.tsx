@@ -1,25 +1,78 @@
 "use client";
-import { useState } from "react";
-import { BUDGET_CATEGORIES } from "@/constants/budget";
+import { useState, useEffect } from "react";
 import { TransactionType } from "../../types/transactionType/types";
 import { transactionService } from "@/utils/transactionService";
 import { useParams } from "next/navigation";
+import { categoryService } from "@/utils/categoryService";
+import { CATEGORY } from "@/utils/categoryService";
+import { eventBus } from "@/utils/eventBus";
+import { BaseEvent } from "@/utils/eventBus";
+import { CategoryModal } from "./CategoryModal";
 
 export function TransactionForm() {
   const params = useParams();
   const [transactionType, setTransactionType] =
     useState<TransactionType>("expense");
+  const [categories, setCategories] = useState<string[]>([]);
   const [newTransaction, setNewTransaction] = useState({
     description: "",
     amount: "",
-    category: BUDGET_CATEGORIES[0],
+    category: "",
     date: new Date().toISOString().split("T")[0],
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
+
+  useEffect(() => {
+    loadCategories();
+
+    const handleCategoryUpdate = () => {
+      loadCategories();
+    };
+
+    const cleanupAdded = eventBus.on(CATEGORY.ADDED, handleCategoryUpdate);
+    const cleanupDeleted = eventBus.on(CATEGORY.DELETED, handleCategoryUpdate);
+
+    return () => {
+      cleanupAdded();
+      cleanupDeleted();
+    };
+  }, []);
+
+  const loadCategories = async () => {
+    try {
+      const loadedCategories = await categoryService.getCategories();
+      setCategories(loadedCategories);
+      if (loadedCategories.length > 0 && !newTransaction.category) {
+        setNewTransaction((prev) => ({
+          ...prev,
+          category: loadedCategories[0],
+        }));
+      }
+    } catch (error) {
+      console.error("Error loading categories:", error);
+      setError("Failed to load categories");
+    }
+  };
+
+  const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = e.target.value;
+    if (value === "manage") {
+      setIsCategoryModalOpen(true);
+      // Reset to the previous category
+      setNewTransaction((prev) => ({ ...prev, category: prev.category }));
+    } else {
+      setNewTransaction((prev) => ({ ...prev, category: value }));
+    }
+  };
 
   const handleSubmit = async () => {
-    if (!newTransaction.description || !newTransaction.amount) {
+    if (
+      !newTransaction.description ||
+      !newTransaction.amount ||
+      !newTransaction.category
+    ) {
       setError("Please fill in all required fields");
       return;
     }
@@ -43,7 +96,7 @@ export function TransactionForm() {
       setNewTransaction({
         description: "",
         amount: "",
-        category: BUDGET_CATEGORIES[0],
+        category: categories[0] || "",
         date: new Date().toISOString().split("T")[0],
       });
     } catch (error) {
@@ -56,37 +109,36 @@ export function TransactionForm() {
 
   return (
     <div className="bg-white p-6 rounded-lg shadow mb-6">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-xl font-semibold">Add New Transaction</h2>
-        <div className="flex bg-gray-100 rounded-lg p-1">
-          <button
-            onClick={() => setTransactionType("expense")}
-            className={`px-4 py-2 rounded-md transition-colors ${
-              transactionType === "expense"
-                ? "bg-red-500 text-white"
-                : "text-gray-700 hover:bg-gray-200"
-            }`}
-          >
-            Expense
-          </button>
-          <button
-            onClick={() => setTransactionType("income")}
-            className={`px-4 py-2 rounded-md transition-colors ${
-              transactionType === "income"
-                ? "bg-green-500 text-white"
-                : "text-gray-700 hover:bg-gray-200"
-            }`}
-          >
-            Income
-          </button>
-        </div>
-      </div>
+      <h2 className="text-xl font-semibold mb-4">Add New Transaction</h2>
 
       {error && (
-        <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+        <div className="mb-4 p-3 bg-red-100 text-red-700 border border-red-400 rounded-md">
           {error}
         </div>
       )}
+
+      <div className="flex gap-4 mb-4">
+        <button
+          onClick={() => setTransactionType("expense")}
+          className={`px-4 py-2 rounded-md transition-colors ${
+            transactionType === "expense"
+              ? "bg-red-500 text-white"
+              : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+          }`}
+        >
+          Expense
+        </button>
+        <button
+          onClick={() => setTransactionType("income")}
+          className={`px-4 py-2 rounded-md transition-colors ${
+            transactionType === "income"
+              ? "bg-green-500 text-white"
+              : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+          }`}
+        >
+          Income
+        </button>
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <input
@@ -114,17 +166,18 @@ export function TransactionForm() {
         />
         <select
           value={newTransaction.category}
-          onChange={(e) =>
-            setNewTransaction({ ...newTransaction, category: e.target.value })
-          }
+          onChange={handleCategoryChange}
           className="border p-2 rounded"
           disabled={isSubmitting}
         >
-          {BUDGET_CATEGORIES.map((cat) => (
+          {categories.map((cat) => (
             <option key={cat} value={cat}>
               {cat}
             </option>
           ))}
+          <option value="manage" className="text-blue-500 font-medium">
+            + Manage Categories
+          </option>
         </select>
         <input
           type="date"
@@ -151,9 +204,11 @@ export function TransactionForm() {
           ? "Saving..."
           : `Add ${transactionType === "expense" ? "Expense" : "Income"}`}
       </button>
-      <div className="mt-2 text-sm text-gray-500">
-        {isSubmitting ? "Saving transaction..." : "All fields are required"}
-      </div>
+
+      <CategoryModal
+        isOpen={isCategoryModalOpen}
+        onClose={() => setIsCategoryModalOpen(false)}
+      />
     </div>
   );
 }
