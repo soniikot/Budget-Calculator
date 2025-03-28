@@ -8,7 +8,7 @@ import type {
 } from "../../types/transactionType/types";
 import { useParams } from "next/navigation";
 import { eventBus } from "@/utils/eventBus";
-import { TRANSACTION, MONTH } from "@/utils/eventsIds";
+import { TRANSACTION } from "@/utils/eventsIds";
 
 export function TransactionsSummary() {
   const { year, month } = useParams() as { year: string; month: string };
